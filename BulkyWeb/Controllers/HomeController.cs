@@ -8,6 +8,7 @@ namespace BulkyWeb.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
+        // created by Mohd Nadeem
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
