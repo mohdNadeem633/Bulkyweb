@@ -1,33 +1,39 @@
 ﻿@model Category
 
 <form method="post">
+
+    @*  if your id is some other name like category then you have to
+    do input asp-for and hidden otherwise it will create
+    a new record instead of edit record *@
+
+    <input asp-for="CategoryId" hidden />
+
     <div class="boarder p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Create Category </h2>
-            <hr/>
+            <h2 class="text-primary">Delete Category </h2>
+            <hr />
         </div>
-       
+
     </div>
     @* <div asp-validation-summary="All"></div> *@
     <div asp-validation-summary="ModelOnly"></div>
 
     <div class="mb-3 row">
         <lebal asp-for="Name"> Category Name</lebal>
-        <input asp-for="Name"  class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    
+        <input asp-for="Name" disabled class="form-control" />
+       
+
     </div>
     <div class="mb-3 row">
-        <lebal asp-for="DisplayOrder" > Display Order</lebal>
-        <input asp-for="DisplayOrder" class="form-control" />
-        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
-
+        <lebal asp-for="DisplayOrder"> Display Order</lebal>
+        <input asp-for="DisplayOrder" disabled class="form-control" />
+        
     </div>
 
-   
+
     <div class="row">
         <div class="col-6 col-md-3">
-            <button type="submit" class="btn btn-primary form-control">Submit</button>
+            <button type="submit" class="btn btn-danger form-control">Delete</button>
         </div>
 
         <div class="col-6 col-md-3">
@@ -37,13 +43,13 @@
         </div>
 
     </div>
-  
-   
+
+
 </form>
 
 
 @* adding the serverside validation doing these things *@
-@section Scripts{
+@section Scripts {
     @{
         <partial name="_ValidationScriptsPartial" />
     }
