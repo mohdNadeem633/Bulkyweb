@@ -1,4 +1,5 @@
 ﻿using Bulky.DataAccess.Data;
+using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -7,14 +8,14 @@ namespace BulkyWeb.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext db)
+        private readonly ICategoryRepository _CategoryRepo;
+        public CategoryController(ICategoryRepository db)
         {
-            _db = db;
+            _CategoryRepo = db;
         }
         public IActionResult Index()
         {
-            List<Category> ls = _db.Categories.ToList();
+            List<Category> ls = _CategoryRepo.GetAll().ToList();
 
             return View(ls);
         }
@@ -29,8 +30,8 @@ namespace BulkyWeb.Controllers
 		{
             if (ModelState.IsValid)
             {
-				_db.Categories.Add(obj);
-				_db.SaveChanges();
+                _CategoryRepo.Add(obj);
+                _CategoryRepo.Save();
 				TempData["Success"] = "Category Added Successfully";
 				return RedirectToAction("Index", "Category");
 
@@ -41,7 +42,7 @@ namespace BulkyWeb.Controllers
 
 		public IActionResult Edit(int? id)
 		{
-			Category? categoryDB = _db.Categories.Find(id);// it only work on the primary key
+			Category? categoryDB = _CategoryRepo.Get(u=>u.CategoryId==id);// it only work on the primary key
 			//Category? categoryDB2 = _db.Categories.FirstOrDefault(u=>u.CategoryId==id); // it works on any property
 			//Category? categoryDB3 = _db.Categories.Where(u=>u.CategoryId==id).FirstOrDefault(); // use for the filltering
 
@@ -58,8 +59,8 @@ namespace BulkyWeb.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				_db.Categories.Update(obj);
-				_db.SaveChanges();
+                _CategoryRepo.Update(obj);
+                _CategoryRepo.Save();
                 TempData["Success"] = "Category Updated Successfully";
                 return RedirectToAction("Index", "Category");
 
@@ -71,7 +72,7 @@ namespace BulkyWeb.Controllers
 
 		public IActionResult Delete(int? id)
         {
-            Category? categoryDB = _db.Categories.Find(id);
+            Category? categoryDB = _CategoryRepo.Get(u=>u.CategoryId==id);
 
             if (id == null && id == 0 && categoryDB == null)
             {
@@ -84,15 +85,15 @@ namespace BulkyWeb.Controllers
 		[HttpPost,ActionName("Delete")]
 		public IActionResult DeletePost(int? id)
 		{
-            Category? categoryDB = _db.Categories.Find(id);
+            Category? categoryDB = _CategoryRepo.Get(u => u.CategoryId == id);
             if (id == null && id == 0 && categoryDB == null)
             {
                 return NotFound();
             }
 			if(categoryDB != null)
 			{
-				_db.Categories.Remove(categoryDB);
-				_db.SaveChanges();
+                _CategoryRepo.Remove(categoryDB);
+                _CategoryRepo.Save();
 			}
 
             TempData["Success"] = "Category Deleted Successfully";
