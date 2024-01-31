@@ -4,7 +4,7 @@ using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace BulkyWeb.Controllers
+namespace BulkyBook.Controllers
 {
     public class CategoryController : Controller
     {
