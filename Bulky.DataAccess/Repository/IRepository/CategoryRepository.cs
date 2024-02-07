@@ -20,10 +20,7 @@ namespace Bulky.DataAccess.Repository.IRepository
             // it's equalent _db.Categories==dbSet
         }
 
-        public void Save()
-        {
-            _db.SaveChanges();
-        }
+       
 
         public void Update(Category obj)
         {
