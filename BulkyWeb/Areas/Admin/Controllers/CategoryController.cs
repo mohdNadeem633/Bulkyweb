@@ -1,9 +1,6 @@
-﻿using Bulky.DataAccess.Data;
-using Bulky.DataAccess.Repository.IRepository;
-using Bulky.Models;
-using BulkyBook.DataAccess.Repository.IRepository;
+﻿using Bulky.Models;
+using BulkyBook.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -101,6 +98,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             TempData["Success"] = "Category Deleted Successfully";
             return RedirectToAction("Index", "Category");
         }
+
 
 
     }
