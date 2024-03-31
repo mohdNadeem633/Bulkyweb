@@ -1,9 +1,10 @@
 ﻿using Bulky.Models;
 using BulkyBook.DataAccess.Repository;
-
+using BulkyBook.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
+
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -24,7 +25,32 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
         public IActionResult Create()
         {
-            return View();
+            // Projection in EF
+            //IEnumerable<SelectListItem> CategoryList =
+            //   _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+            //   {
+            //       Text = u.Name,
+            //       Value = u.CategoryId.ToString(),
+
+            //   });
+            // ViewBag.CategoryList = CategoryList;
+            // ViewData["CategoryList"] = CategoryList;
+
+            // when we have multiple viewbag or viewdata then we have to create  a Modelview class
+            // and define over there properties  and then return it to the view
+            ProductVM productVM = new()
+            {
+                CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.CategoryId.ToString(),
+
+                }),
+                Product = new Product()
+
+            };
+
+            return View(productVM);
         }
 
         [HttpPost]
@@ -32,7 +58,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(obj);
+                _unitOfWork.Product.Add(obj );
                 _unitOfWork.Save();
                 TempData["Success"] = "Product Added Successfully";
                 return RedirectToAction("Index", "Product");
