@@ -3,8 +3,10 @@ using BulkyBook.DataAccess.Repository;
 using BulkyBook.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Hosting;
+using System;
 using System.Collections.Generic;
-
+using System.IO;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -12,33 +14,23 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
+
         public IActionResult Index()
         {
-            List<Product> ls = _unitOfWork.Product.GetAll().ToList();
-           
-
-            return View(ls);
+            List<Product> products = (List<Product>)_unitOfWork.Product.GetAll();
+            return View(products);
         }
-        public IActionResult Create()
+
+        public IActionResult Upsert(int? id)
         {
-            // Projection in EF
-            //IEnumerable<SelectListItem> CategoryList =
-            //   _unitOfWork.Category.GetAll().Select(u => new SelectListItem
-            //   {
-            //       Text = u.Name,
-            //       Value = u.CategoryId.ToString(),
-
-            //   });
-            // ViewBag.CategoryList = CategoryList;
-            // ViewData["CategoryList"] = CategoryList;
-
-            // when we have multiple viewbag or viewdata then we have to create  a Modelview class
-            // and define over there properties  and then return it to the view
-            ProductVM productVM = new()
+            var productVM = new ProductVM
             {
                 CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
                 {
@@ -46,85 +38,75 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                     Value = u.CategoryId.ToString(),
 
                 }),
-                Product = new Product()
-
+                Product = id == null ? new Product() : _unitOfWork.Product.Get(u => u.ProductId == id)
             };
 
             return View(productVM);
         }
 
         [HttpPost]
-        public IActionResult Create(Product obj)
+        public IActionResult Upsert(ProductVM productVM, IFormFile file)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(obj );
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwRootPath, "images", "product");
+                    string filePath = Path.Combine(productPath, fileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    productVM.Product.ImageUrl = "/images/product/" + fileName;
+                }
+
+                _unitOfWork.Product.Add(productVM.Product);
                 _unitOfWork.Save();
+
                 TempData["Success"] = "Product Added Successfully";
                 return RedirectToAction("Index", "Product");
-
             }
-
-            return View();
-        }
-
-        public IActionResult Edit(int? id)
-        {
-            Product? ProductDB = _unitOfWork.Product.Get(u => u.ProductId == id);// it only work on the primary key
-                                                                                 //Product? ProductDB2 = _db.Categories.FirstOrDefault(u=>u.ProductId==id); // it works on any property
-            if (id == null && id == 0 && ProductDB.ProductId == null)
+            else
             {
-                return NotFound();
+                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.CategoryId.ToString(),
+                });
+
+                return View(productVM);
             }
-
-            return View(ProductDB);
-
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Product obj)
-        {
-
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Product.Update(obj);
-                _unitOfWork.Save();
-                TempData["Success"] = "Product Updated Successfully";
-                return RedirectToAction("Index", "Product");
-
-            }
-            return View();
         }
 
         public IActionResult Delete(int? id)
         {
-            Product ProductDB = _unitOfWork.Product.Get(u => u.ProductId == id);
-            if (id == null && id == 0 && ProductDB.ProductId == null)
-            {
-                return NotFound(); 
-            }
-
-            return View(ProductDB);
-        }
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePost(int? id)
-        {
-
-            Product? ProductDB = _unitOfWork.Product.Get(u => u.ProductId == id);
-            if (id == null && id == 0 && ProductDB == null)
+            Product product = _unitOfWork.Product.Get(u => u.ProductId == id);
+            if (id == null || product == null)
             {
                 return NotFound();
             }
-            if (ProductDB != null)
+
+            return View(product);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeletePost(int? id)
+        {
+            Product product = _unitOfWork.Product.Get(u => u.ProductId == id);
+            if (id == null || product == null)
             {
-                _unitOfWork.Product.Remove(ProductDB);
-                _unitOfWork.Save();
+                return NotFound();
             }
+
+            _unitOfWork.Product.Remove(product);
+            _unitOfWork.Save();
 
             TempData["Success"] = "Product Deleted Successfully";
             return RedirectToAction("Index", "Product");
-
-
         }
     }
 }

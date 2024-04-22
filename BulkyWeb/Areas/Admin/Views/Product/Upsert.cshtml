@@ -1,0 +1,124 @@
+﻿ @model ProductVM
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">@(Model.Product.ProductId!=0?"Update":"Create") Product</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-action="Product.Id" hidden/>
+            <div class="row">
+                <div class="col-10">
+                    <div class="border p-3">
+
+                        @* <div asp-validation-summary="All"></div> *@
+                        @* <div asp-validation-summary="ModelOnly"></div> *@
+
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.Title" class="ms-2"> Title</lebal>
+                            <input asp-for="Product.Title" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.Title" class="text-danger"></span>
+                        </div>
+                        <div class="py-2 col-12">
+                            <lebal asp-for="Product.Description" class="ms-2 text-muted"> Description</lebal>
+                            <textarea asp-for="Product.Description" class="form-control border-0 shadow"></textarea>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.ISBN" class="ms-2"> ISBN</lebal>
+                            <input asp-for="Product.ISBN" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.ISBN" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.Author" class="ms-2"> Author</lebal>
+                            <input asp-for="Product.Author" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.Author" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.LastPrice" class="ms-2"> Last Price</lebal>
+                            <input asp-for="Product.ListPrice" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.ListPrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.Price" class="ms-2"> Price</lebal>
+                            <input asp-for="Product.Price" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.Price" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.Price50" class="ms-2"> Price50</lebal>
+                            <input asp-for="Product.Price50" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.Price50" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.Price100" class="ms-2"> Price100</lebal>
+
+                            <input asp-for="Product.Price100" class="form-control border-0 shadow" />
+                            <span asp-validation-for="Product.Price100" class="text-danger"></span>
+
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <lebal asp-for="Product.ImageUrl" class="ms-2"> ImageUrl</lebal>
+                            <input type="file" name="file" class="form-control border-0 shadow" />
+                            @* <span asp-validation-for="Product.ImageUrl" class="text-danger"></span> *@
+
+                        </div>
+
+                        @* how to add the lov(list value) foreign key as a Dropdown in child table
+                        I also add the ViewBag in this section *@
+                        <div class="form-floating py-2 col-12">
+                            @* <select asp-for="Product.CategoryId" asp-items="ViewBag.CategoryList" class="form-control border-0 shadow"> *@
+                            <lebal asp-for="Product.CategoryId" class="ms-2"> Category</lebal>
+                            <select asp-for="Product.CategoryId" asp-items="@Model.CategoryList" class="form-control border-0 shadow">
+                                <option disabled selected>--Selected Category--</option>
+                            </select>
+                            <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="row pt-2">
+                            <div class="col-6 col-md-3">
+                                @if (Model.Product.ProductId != 0)
+                                {
+                                    <button type="submit" class="btn btn-primary form-control">Update</button>
+
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-primary form-control">Create</button>
+
+                                }
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary border form-control">Back to List</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <img src="@Url.Content(Model.Product.ImageUrl)"  width="100%" style="border-radius:5px; border:1px solid #bbb9b9" />
+
+                </div>
+
+            </div>
+            
+        </form>
+        </div>
+
+</div>
+
+
+
+@* adding the serverside validation doing these things *@
+@section Scripts{
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'anchor autolink charmap codesample emoticons  lists   table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough |  addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent ',
+        });
+    </script>
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
