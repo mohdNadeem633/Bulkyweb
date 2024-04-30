@@ -28,6 +28,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return View(products);
         }
 
+        [HttpGet]
         public IActionResult Upsert(int? id)
         {
             var productVM = new ProductVM
@@ -64,10 +65,18 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                     productVM.Product.ImageUrl = "/images/product/" + fileName;
                 }
 
-                _unitOfWork.Product.Add(productVM.Product);
+                if (productVM.Product.ProductId == 0) // Creating a new product
+                {
+                    _unitOfWork.Product.Add(productVM.Product);
+                }
+                else // Updating an existing product
+                {
+                    _unitOfWork.Product.Update(productVM.Product);
+                }
+
                 _unitOfWork.Save();
 
-                TempData["Success"] = "Product Added Successfully";
+                TempData["Success"] = "Product Saved Successfully";
                 return RedirectToAction("Index", "Product");
             }
             else
